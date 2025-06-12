@@ -106,6 +106,8 @@ In app.json, make sure to add :
 
 This will tell Expo to include the webrtc config plugin in the prebuild process.
 
+## Tips for development
+
 ### Android SDK
 
 Make sure that you have set ANDROID_HOME value
