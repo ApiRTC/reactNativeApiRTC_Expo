@@ -12,6 +12,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "reactnativeexpo.apirtc.com",
       "infoPlist": {
+        "UIBackgroundModes": ["voip"],
         "ITSAppUsesNonExemptEncryption": false
       }
     },

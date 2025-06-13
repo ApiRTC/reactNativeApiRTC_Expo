@@ -106,6 +106,32 @@ In app.json, make sure to add :
 
 This will tell Expo to include the webrtc config plugin in the prebuild process.
 
+### How to activate blur on camera stream on iOS :
+
+To activate Blur on video stream, it is possible to use the iOS portrait effect feature on the application :
+https://support.apple.com/guide/iphone/use-video-conferencing-features-iphaa0b5671d/ios
+
+To activate, you will have to modify app.json by adding '"UIBackgroundModes": ["voip"]' or '"NSCameraPortraitEffectEnabled" : true' parameters 
+
+    "ios": {
+      "infoPlist": {
+        "UIBackgroundModes": ["voip"],
+        [...]
+      }
+    },
+
+or 
+
+    "ios": {
+      "infoPlist": {
+        "NSCameraPortraitEffectEnabled" : true,
+        [...]
+      }
+    },
+
+More information here : https://developer.apple.com/videos/play/wwdc2021/10047/?time=1324.
+Voip parameter will also activate studio light and reactions feature.
+
 ## Tips for development
 
 ### Android SDK
