@@ -33,6 +33,7 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 
 **_Note For iOS :_**
   - replace "YOUR_TEAM_ID" with your apple development team identifier in app.json
+
       "appleTeamId": "YOUR_TEAM_ID"
 
 
