@@ -12,16 +12,30 @@
       "supportsTablet": true,
       "bundleIdentifier": "reactnativeexpo.apirtc.com",
       "infoPlist": {
-        "UIBackgroundModes": ["voip"],
+        "UIBackgroundModes": [
+          "voip"
+        ],
         "ITSAppUsesNonExemptEncryption": false
-      }
+      },
+      "bitcode": false,
+      "appleTeamId": "YOUR_TEAM_ID"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "reactnativeexpo.apirtc.com"
+      "package": "reactnativeexpo.apirtc.com",
+      "permissions": [
+        "android.permission.ACCESS_NETWORK_STATE",
+        "android.permission.CAMERA",
+        "android.permission.INTERNET",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.SYSTEM_ALERT_WINDOW",
+        "android.permission.WAKE_LOCK",
+        "android.permission.BLUETOOTH"
+      ]
     },
     "web": {
       "bundler": "metro",

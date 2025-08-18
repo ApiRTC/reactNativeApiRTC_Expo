@@ -21,22 +21,20 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    ```
 2. Set up your environment
 
-- [Set up](https://docs.expo.dev/get-started/set-up-your-environment/?mode=development-build)
+  Complete informations to start can be found on this page :
+    - [Set up](https://docs.expo.dev/get-started/set-up-your-environment/?mode=development-build&buildEnv=local)
 
-3. Start the app
+  We advice to start the application locally on your phone connected to your computer
+        npx expo run:ios --device
 
-   ```bash
-    npx expo start
-   ```
+        npx expo run:android
 
-In the output, you'll find options to open the app in a
+  And then scan the bar code to start the application
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+**_Note For iOS :_**
+  - replace "YOUR_TEAM_ID" with your apple development team identifier in app.json
+      "appleTeamId": "YOUR_TEAM_ID"
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
 ## Learn more
 
