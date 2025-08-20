@@ -7,7 +7,12 @@ import {
     TouchableOpacity,
     ScrollView,
     StyleSheet,
+    Platform,
+    NativeModules,
+    NativeEventEmitter,
   } from 'react-native';
+
+const {AppLifecycleModule} = NativeModules;
 
 import {
     RTCView,
@@ -19,6 +24,8 @@ import {styles} from './Styles';
 
 import Microphone_on from './images/svg/Microphone_on.js';
 import Microphone_off from './images/svg/Microphone_off.js';
+import ScreenShare_on from './images/svg/ScreenShare_on.js';
+import ScreenShare_off from './images/svg/ScreenShare_off.js';
 import Camera_off from './images/svg/Camera_off.js';
 import Camera_on from './images/svg/Camera_on.js';
 import Hangup from './images/svg/Hangup.js';
@@ -48,7 +55,10 @@ export default class ReactNativeApiRTC extends React.Component {
   currentCall: apiRTC.Call | null;
   conversation: apiRTC.Conversation | null;
   localStream: apiRTC.Stream | null;
+  localScreen: apiRTC.Stream | null;
+  screenSharingIsStarted: boolean;
   localStreamIsPublished: boolean;
+  localScreenIsPublished: boolean;
 
   constructor(props) {
     super(props);
@@ -60,12 +70,39 @@ export default class ReactNativeApiRTC extends React.Component {
     this.currentCall = null;
     this.conversation = null;
     this.localStream = null;
+    this.localScreen = null;
+    this.screenSharingIsStarted = false; //Boolean to know if screen sharing is started
     this.localStreamIsPublished = false; //Boolean to know if local stream is published
+    this.localScreenIsPublished = false; //Boolean to know if local screen is published
   }
 
   componentDidMount() {
     apiRTC.setLogLevel(10);
     console.log('ReactNativeApiRTC component mounted');
+
+    //Process to handle app destroy event
+    //This will be called when the app is destroyed (when the user closes the app)
+    //This is done by the AppLifecycleModule which is a native module that listens to app lifecycle events
+    //and sends an event to the JavaScript side when the app is destroyed
+    //This is useful to stop screen sharing (and extension) if it is started
+
+    if (Platform.OS === 'android') {
+      const eventEmitter = new NativeEventEmitter();
+      eventEmitter.addListener('liveCycleEvent', event => {
+        console.debug('liveCycleEvent :', event.eventType);
+        if (event.eventType === 'onDestroy') {
+          //App destroy event received from AppLifecycleModule
+
+          //Note : This event is not always received when the app is closed
+          //liveCycleEvent Module will also call mediaStreamRelease on WebRTCModule
+          //to release the local stream and the screen sharing stream
+          //But we also call hangUp() here to try unpublish the streams
+          this.hangUp();
+        } else {
+          console.debug('liveCycleEvent not managed :', event.eventType);
+        }
+      });
+    }
     
     this.setState({remoteListSrc: new Map(), remoteList: new Map()});
 
@@ -131,6 +168,16 @@ export default class ReactNativeApiRTC extends React.Component {
             this.localStream = localStream;
             console.info('Update local stream');
             this.setState({selfViewSrc: localStream.getData().toURL()});
+
+            //Sending localStream data to AppLifecycleModule
+            //This is to enable AppLifecycleModule to stop screen sharing extension when the app is destroyed
+            let paramForAppLifecycleModule = {
+              localStreamReactTag: this.localStream.data._reactTag,
+              localStreamTrackId: this.localStream.data._tracks[0].id,
+            };
+            AppLifecycleModule.sendInfoToAppLifecycleModule(
+              paramForAppLifecycleModule,
+            );
 
             this.conversation
                 .publish(localStream)
@@ -251,6 +298,30 @@ export default class ReactNativeApiRTC extends React.Component {
       this.localStream = null;
     }
 
+    //Stop screen sharing
+    if (Platform.OS === 'android') {
+      //ReInit localStream data in AppLifecycleModule
+      let paramForAppLifecycleModule = {
+        localStreamReactTag: 'STOPPED',
+        localStreamTrackId: 'STOPPED',
+      };
+      AppLifecycleModule.sendInfoToAppLifecycleModule(
+        paramForAppLifecycleModule,
+      );
+    }
+//TODO
+/*
+    if (Platform.OS === 'ios') {
+      //Sending stop screen sharing request to the extension
+      ReactNativeApiRTC_RPK.sendBroadcastNeedToBeStopped();
+    }
+*/
+    //Managing stop screen sharing on the application
+    if (this.screenSharingIsStarted) {
+      this.stopScreenSharingProcess();
+      this.localScreen = null;
+    }
+
     this.conversation
       .leave()
       .then(() => {
@@ -271,6 +342,39 @@ export default class ReactNativeApiRTC extends React.Component {
     });
     this.conversation.destroy();
     this.conversation = null;
+  };
+
+  stopScreenSharingProcess = () => {
+    //Stop screen sharing
+    this.setState({selfScreenSrc: null});
+    this.setState({displayScreenInfoStop: true});
+    if (
+      this.localScreen &&
+      this.localScreen !== null &&
+      this.localScreenIsPublished
+    ) {
+      this.conversation.unpublish(this.localScreen);
+      this.localScreenIsPublished = false;
+    }
+    if (Platform.OS === 'android') {
+      this.localScreen.release();
+
+      //ReInit localScreen data in AppLifecycleModule
+      let paramForAppLifecycleModule = {
+        localScreenReactTag: 'STOPPED',
+        localScreenTrackId: 'STOPPED',
+      };
+      AppLifecycleModule.sendInfoToAppLifecycleModule(
+        paramForAppLifecycleModule,
+      );
+    }
+    this.localScreen = null;
+    this.screenSharingIsStarted = false;
+  };
+
+  stoppedEventListenerOnScreenStream = () => {
+    console.debug('Screen sharing stream has been stopped');
+    this.stopScreenSharingProcess();
   };
 
   mute = () => {
@@ -294,6 +398,111 @@ export default class ReactNativeApiRTC extends React.Component {
       console.info('UnmuteVideo');
       this.localStream.enableVideo();
       this.setState({muteVideo: false});
+    }
+  };
+
+  screenSharing = () => {
+
+    if (this.screenSharingIsStarted) {
+
+//TODO
+/*
+      //Stop screen sharing
+
+      if (Platform.OS === 'ios') {
+        //Sending stop screen sharing request to the extension
+        ReactNativeApiRTC_RPK.sendBroadcastNeedToBeStopped();
+      }
+*/
+      //Managing stop screen sharing on the application
+      this.stopScreenSharingProcess();
+
+    } else {
+      //Start screen sharing
+
+      if (Platform.OS === 'ios') {
+//TODO
+/*
+        const reactTag = findNodeHandle(this.screenCaptureView.current);
+        NativeModules.ScreenCapturePickerViewManager.show(reactTag);
+
+        const displayMediaStreamConstraints = {
+          video: true,
+          audio: false,
+        };
+
+        //Add listener for screen sharing event coming from the extension
+        ReactNativeApiRTC_RPK.addListener('onScreenShare', event => {
+          if (event === 'START_BROADCAST') {
+            //Broadcast is started on extension side
+            //We can publish the screen sharing stream to the conversation
+            this.conversation
+              .publish(this.localScreen)
+              .then(publishedScreenShare => {
+                this.localScreenIsPublished = true;
+              })
+              .catch(err => {
+                console.error(err);
+              });
+          } else if (event === 'STOP_BROADCAST') {
+            console.debug('Broadcast stopped');
+          }
+        });
+
+        apiRTC.Stream.createScreensharingStream(displayMediaStreamConstraints)
+          .then(localScreenShare => {
+
+            this.screenSharingIsStarted = true;
+            this.localScreen = localScreenShare;
+
+            this.setState({selfScreenSrc: this.localScreen.getData().toURL()});
+
+            //Adding listener for screen sharing stop event
+            this.localScreen.on(
+              'stopped',
+              this.stoppedEventListenerOnScreenStream,
+            );
+
+          })
+          .catch(err => {
+            console.error(err);
+          });
+*/
+      } else {
+
+        const displayMediaStreamConstraints = {
+          video: true,
+          audio: false,
+        };
+        apiRTC.Stream.createScreensharingStream(displayMediaStreamConstraints)
+          .then(localScreenShare => {
+            this.screenSharingIsStarted = true;
+            this.localScreen = localScreenShare;
+            
+            //Sending localScreen data to AppLifecycleModule
+            //This is to enable AppLifecycleModule to stop screen sharing extension when the app is destroyed
+            let paramForAppLifecycleModule = {
+              localScreenReactTag: this.localScreen.data._reactTag,
+              localScreenTrackId: this.localScreen.data._tracks[0].id,
+            };
+            AppLifecycleModule.sendInfoToAppLifecycleModule(
+              paramForAppLifecycleModule,
+            );
+
+            this.setState({selfScreenSrc: this.localScreen.getData().toURL()});
+            this.conversation
+              .publish(localScreenShare)
+              .then(publishedScreenShare => {
+                this.localScreenIsPublished = true;
+              })
+              .catch(err => {
+                console.error('Error on publish stream for screenShare :', err);
+              });
+          })
+          .catch(err => {
+            console.error('Error on createScreensharingStream :', err);
+          });
+      }
     }
   };
 
@@ -405,6 +614,46 @@ export default class ReactNativeApiRTC extends React.Component {
       );
     }
 
+    function renderScreenSelfView(ctx) {
+      if (ctx.state.status !== 'onCall' || ctx.state.selfScreenSrc === null) {
+        return null;
+      }
+      if (Platform.OS === 'ios') {
+
+//TODO
+/*
+        //We can't display screen sharing stream locally on iOS : replacing stream by an image
+        return (
+          <Image
+            style={styles.selfScreenViewImg}
+            source={require('./images/screenSharingOngoing.png')}
+          />
+        );
+*/
+      } else {
+        //Android : display screen sharing stream locally
+        return (
+          <RTCView
+            style={styles.selfScreenView}
+            streamURL={ctx.state.selfScreenSrc}
+            zOrder={99}
+          />
+        );
+      }
+    }
+
+    function displayScreenShare(ctx) {
+      return (
+        <TouchableOpacity
+          style={styles.renderButtonComponent}
+          onPress={() => {
+            ctx.screenSharing();
+          }}>
+          <View style={styles.svgButton}>{renderScreenSharingButton(ctx)}</View>
+        </TouchableOpacity>
+      );
+    }
+
     function renderMuteButton(ctx) {
       if (ctx.state.mute === false) {
         return <Microphone_on />;
@@ -417,6 +666,13 @@ export default class ReactNativeApiRTC extends React.Component {
         return <Camera_on />;
       }
       return <Camera_off />;
+    }
+
+    function renderScreenSharingButton(ctx) {
+      if (ctx.state.selfScreenSrc) {
+        return <ScreenShare_on />;
+      }
+      return <ScreenShare_off />;
     }
 
     function renderButtons(ctx) {
@@ -439,6 +695,7 @@ export default class ReactNativeApiRTC extends React.Component {
             }}>
             <View style={styles.svgButton}>{renderMuteVideoButton(ctx)}</View>
           </TouchableOpacity>
+          {displayScreenShare(ctx)}
           <TouchableOpacity
             style={[styles.renderButtonComponent, {backgroundColor: '#FF6056'}]}
             onPress={() => {
@@ -483,6 +740,7 @@ export default class ReactNativeApiRTC extends React.Component {
         {renderRemoteViews(this)}
         {renderButtons(this)}
         {renderSelfView(this)}
+        {renderScreenSelfView(this)}
       </View>
     );
   }

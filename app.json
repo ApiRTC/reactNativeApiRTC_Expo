@@ -46,6 +46,7 @@
       [
         "@config-plugins/react-native-webrtc"
       ],
+      ["@apirtc/expo-apirtc-options-plugin", { "enableMediaProjectionService": true }],
       "expo-router",
       [
         "expo-splash-screen",

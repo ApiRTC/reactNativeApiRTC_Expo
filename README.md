@@ -60,7 +60,7 @@ Here is the list of supported feature depending on mobile OS
 | Media routing : Mesh  | :white_check_mark: | :white_check_mark: |
 | Chat (Not added in this demo)    | :white_check_mark: | :white_check_mark: |
 | Record (Not added in this demo)    | :white_check_mark: | :white_check_mark: |
-| Screensharing (Not added in this demo)  | :white_check_mark: | :white_check_mark: |
+| Screensharing | :white_check_mark: | :white_check_mark: (Not added in this demo)  |
 
 ## Compatibility
 - This demo is compatible with iOS 12+ & Android 10+
@@ -91,6 +91,8 @@ This will add needed autorisation in your app (access to microphone/camera)
 Used to get device information on React Native
 - [socket.io-client](https://www.npmjs.com/package/socket.io-client)
 Used to manage the connexion with our server (Websocket, HTTP polling)
+- [expo-apirtc-options-plugin](https://www.npmjs.com/package/@apirtc/expo-apirtc-options-plugin)
+Used to manage native interaction for feature like screensharing
 
 You will find all the details in our package.json.
 
