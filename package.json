@@ -15,8 +15,8 @@
     "preset": "jest-expo"
   },
   "dependencies": {
+    "@apirtc/expo-apirtc-options-plugin": "^0.0.4",
     "@apirtc/react-native-apirtc": "^5.0.28-react-native",
-    "@apirtc/expo-apirtc-options-plugin": "^0.0.1",
     "@config-plugins/react-native-webrtc": "^10.0.0",
     "@expo/vector-icons": "^14.0.2",
     "@fortawesome/fontawesome-svg-core": "^6.7.2",

@@ -46,7 +46,12 @@
       [
         "@config-plugins/react-native-webrtc"
       ],
-      ["@apirtc/expo-apirtc-options-plugin", { "enableMediaProjectionService": true }],
+      ["@apirtc/expo-apirtc-options-plugin",
+      {
+        "enableMediaProjectionService": true,
+        "appleTeamId": "YOUR_TEAM_ID"
+      }]
+      ,
       "expo-router",
       [
         "expo-splash-screen",

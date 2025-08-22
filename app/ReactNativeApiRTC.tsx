@@ -10,15 +10,20 @@ import {
     Platform,
     NativeModules,
     NativeEventEmitter,
+    findNodeHandle,
+    Image,
   } from 'react-native';
 
 const {AppLifecycleModule} = NativeModules;
 
 import {
     RTCView,
+    ScreenCapturePickerView
 } from 'react-native-webrtc';
 
 import '@apirtc/react-native-apirtc';
+
+import ReactNativeApiRTC_RPK from './ReactNativeApiRTC_RPK'; //This is to manage interaction with screen sharing extension on iOS
 
 import {styles} from './Styles';
 
@@ -122,6 +127,10 @@ export default class ReactNativeApiRTC extends React.Component {
         .catch(err => {
             console.error('Error on register : ', err);
         });
+
+    if (Platform.OS === 'ios') {
+      this.screenCaptureView = createRef(null);
+    }
   }
 
   setUAListeners() {
@@ -169,15 +178,17 @@ export default class ReactNativeApiRTC extends React.Component {
             console.info('Update local stream');
             this.setState({selfViewSrc: localStream.getData().toURL()});
 
-            //Sending localStream data to AppLifecycleModule
-            //This is to enable AppLifecycleModule to stop screen sharing extension when the app is destroyed
-            let paramForAppLifecycleModule = {
-              localStreamReactTag: this.localStream.data._reactTag,
-              localStreamTrackId: this.localStream.data._tracks[0].id,
-            };
-            AppLifecycleModule.sendInfoToAppLifecycleModule(
-              paramForAppLifecycleModule,
-            );
+            if (Platform.OS === 'android') {
+              //Sending localStream data to AppLifecycleModule
+              //This is to enable AppLifecycleModule to stop screen sharing extension when the app is destroyed
+              let paramForAppLifecycleModule = {
+                localStreamReactTag: this.localStream.data._reactTag,
+                localStreamTrackId: this.localStream.data._tracks[0].id,
+              };
+              AppLifecycleModule.sendInfoToAppLifecycleModule(
+                paramForAppLifecycleModule,
+              );
+            }
 
             this.conversation
                 .publish(localStream)
@@ -309,13 +320,12 @@ export default class ReactNativeApiRTC extends React.Component {
         paramForAppLifecycleModule,
       );
     }
-//TODO
-/*
+
     if (Platform.OS === 'ios') {
       //Sending stop screen sharing request to the extension
       ReactNativeApiRTC_RPK.sendBroadcastNeedToBeStopped();
     }
-*/
+
     //Managing stop screen sharing on the application
     if (this.screenSharingIsStarted) {
       this.stopScreenSharingProcess();
@@ -405,15 +415,13 @@ export default class ReactNativeApiRTC extends React.Component {
 
     if (this.screenSharingIsStarted) {
 
-//TODO
-/*
       //Stop screen sharing
 
       if (Platform.OS === 'ios') {
         //Sending stop screen sharing request to the extension
         ReactNativeApiRTC_RPK.sendBroadcastNeedToBeStopped();
       }
-*/
+
       //Managing stop screen sharing on the application
       this.stopScreenSharingProcess();
 
@@ -421,8 +429,7 @@ export default class ReactNativeApiRTC extends React.Component {
       //Start screen sharing
 
       if (Platform.OS === 'ios') {
-//TODO
-/*
+
         const reactTag = findNodeHandle(this.screenCaptureView.current);
         NativeModules.ScreenCapturePickerViewManager.show(reactTag);
 
@@ -467,7 +474,7 @@ export default class ReactNativeApiRTC extends React.Component {
           .catch(err => {
             console.error(err);
           });
-*/
+
       } else {
 
         const displayMediaStreamConstraints = {
@@ -478,7 +485,7 @@ export default class ReactNativeApiRTC extends React.Component {
           .then(localScreenShare => {
             this.screenSharingIsStarted = true;
             this.localScreen = localScreenShare;
-            
+
             //Sending localScreen data to AppLifecycleModule
             //This is to enable AppLifecycleModule to stop screen sharing extension when the app is destroyed
             let paramForAppLifecycleModule = {
@@ -620,8 +627,6 @@ export default class ReactNativeApiRTC extends React.Component {
       }
       if (Platform.OS === 'ios') {
 
-//TODO
-/*
         //We can't display screen sharing stream locally on iOS : replacing stream by an image
         return (
           <Image
@@ -629,7 +634,7 @@ export default class ReactNativeApiRTC extends React.Component {
             source={require('./images/screenSharingOngoing.png')}
           />
         );
-*/
+
       } else {
         //Android : display screen sharing stream locally
         return (
@@ -732,8 +737,16 @@ export default class ReactNativeApiRTC extends React.Component {
       );
     }
 
+    function screenCapturePickerView(ctx) {
+      if (Platform.OS !== 'ios') {
+        return null;
+      }
+      return <ScreenCapturePickerView ref={ctx.screenCaptureView} />;
+    }
+
     return (
       <View style={styles.container}>
+        {screenCapturePickerView(this)}
         {renderApiRTCCnx(this)}
         {renderPicker(this)}
         {renderFooter(this)}

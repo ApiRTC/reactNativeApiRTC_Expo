@@ -25,18 +25,41 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
     - [Set up](https://docs.expo.dev/get-started/set-up-your-environment/?mode=development-build&buildEnv=local)
 
   We advice to start the application locally on your phone connected to your computer
-        npx expo run:ios --device
 
+  <b>IOS :</b>
+  
+   ```bash
+        npx expo prebuild --clean
+   ```
+          -> this will apply all needed configuration on your projet using our plugin [https://www.npmjs.com/package/@apirtc/expo-apirtc-options-plugin](expo-apirtc-options-plugin)
+   ```bash
+        npx expo run:ios --device
+   ```
+
+  <b>Android :</b>
+
+   ```bash
         npx expo run:android
+   ```
 
   And then scan the bar code to start the application
 
 **_Note For iOS :_**
   - replace "YOUR_TEAM_ID" with your apple development team identifier in app.json
-
+  in ios section :
+   ```bash  
       "appleTeamId": "YOUR_TEAM_ID"
+   ```
 
-
+  and in plugin section :
+   ```bash
+      ["@apirtc/expo-apirtc-options-plugin",
+      {
+        "enableMediaProjectionService": true,
+        "appleTeamId": "YOUR_TEAM_ID"
+      }]
+   ```
+   
 ## Learn more
 
 To learn more about developing your project with Expo, look at the following resources:
@@ -60,7 +83,7 @@ Here is the list of supported feature depending on mobile OS
 | Media routing : Mesh  | :white_check_mark: | :white_check_mark: |
 | Chat (Not added in this demo)    | :white_check_mark: | :white_check_mark: |
 | Record (Not added in this demo)    | :white_check_mark: | :white_check_mark: |
-| Screensharing | :white_check_mark: | :white_check_mark: (Not added in this demo)  |
+| Screensharing | :white_check_mark: | :white_check_mark:  |
 
 ## Compatibility
 - This demo is compatible with iOS 12+ & Android 10+
