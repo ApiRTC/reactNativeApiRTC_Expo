@@ -59,6 +59,12 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
         "appleTeamId": "YOUR_TEAM_ID"
       }]
    ```
+
+   Don't forget to reset your project with :
+
+   ```bash
+        npx expo prebuild --clean
+   ```
    
 ## Learn more
 
