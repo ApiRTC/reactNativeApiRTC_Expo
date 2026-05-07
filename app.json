@@ -7,7 +7,7 @@
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "reactnativeexpo.apirtc.com",
@@ -49,6 +49,7 @@
       ["@apirtc/expo-apirtc-options-plugin",
       {
         "enableMediaProjectionService": true,
+        "enableVideoEffects": true,
         "appleTeamId": "YOUR_TEAM_ID"
       }]
       ,
