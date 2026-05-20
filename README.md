@@ -90,7 +90,7 @@ Here is the list of supported feature depending on mobile OS
 | Chat (Not added in this demo)    | :white_check_mark: | :white_check_mark: |
 | Record (Not added in this demo)    | :white_check_mark: | :white_check_mark: |
 | Screensharing | :white_check_mark: | :white_check_mark:  |
-| Background blur / image | :white_check_mark: | :x: |
+| Background blur / image | :white_check_mark: | :white_check_mark: (blur only) |
 
 ## Compatibility
 - This demo is compatible with iOS 12+ & Android 10+
