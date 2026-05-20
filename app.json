@@ -18,7 +18,7 @@
         "ITSAppUsesNonExemptEncryption": false
       },
       "bitcode": false,
-      "appleTeamId": "YOUR_TEAM_ID"
+      "appleTeamId": "BLK87S84CQ"
     },
     "android": {
       "adaptiveIcon": {
@@ -50,7 +50,7 @@
       {
         "enableMediaProjectionService": true,
         "enableVideoEffects": true,
-        "appleTeamId": "YOUR_TEAM_ID"
+        "appleTeamId": "BLK87S84CQ"
       }]
       ,
       "expo-router",

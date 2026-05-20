@@ -15,7 +15,7 @@
     "preset": "jest-expo"
   },
   "dependencies": {
-    "@apirtc/expo-apirtc-options-plugin": "0.0.6",
+    "@apirtc/expo-apirtc-options-plugin": "^0.0.7",
     "@apirtc/react-native-apirtc": "^5.0.35",
     "@config-plugins/react-native-webrtc": "^14.0.0",
     "@expo/vector-icons": "^15.0.2",
