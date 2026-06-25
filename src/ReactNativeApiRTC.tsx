@@ -384,7 +384,7 @@ export default class ReactNativeApiRTC extends React.Component<{}, State> {
   };
 
   applyVideoEffect = async (bg: Background) => {
-    if (Platform.OS !== 'android') {
+    if (Platform.OS !== 'android' || !BackgroundBlurModule) {
       return;
     }
     if (this.state.isApplyingBg) {
@@ -847,6 +847,15 @@ export default class ReactNativeApiRTC extends React.Component<{}, State> {
               </TouchableOpacity>
             )}
           </View>
+          {Platform.OS === 'ios' && (
+            <TouchableOpacity
+              style={styles.renderButtonComponent}
+              onPress={() => ReactNativeApiRTC_RPK.showVideoEffectsUI()}>
+              <View style={styles.svgButton}>
+                <Blur_on />
+              </View>
+            </TouchableOpacity>
+          )}
           <TouchableOpacity
             style={styles.renderButtonComponent}
             onPress={() => this.screenSharing()}>

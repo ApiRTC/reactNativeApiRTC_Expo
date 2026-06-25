@@ -50,7 +50,8 @@
       {
         "enableMediaProjectionService": true,
         "enableVideoEffects": true,
-        "appleTeamId": "BLK87S84CQ"
+        "appleTeamId": "YOUR_APPLE_TEAM_ID",
+        "logLevel": "debug"
       }]
       ,
       "expo-router",

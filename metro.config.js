@@ -6,4 +6,8 @@ const config = getDefaultConfig(__dirname);
 // which causes Watchman daemon to refuse starting. Node crawler is the reliable fallback.
 config.resolver.useWatchman = false;
 
+// Disable "exports" field resolution for packages that don't properly expose subpaths
+// (e.g. event-target-shim used by react-native-webrtc)
+config.resolver.unstable_enablePackageExports = false;
+
 module.exports = config;
