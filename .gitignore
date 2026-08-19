@@ -9,4 +9,3 @@ expo-env.d.ts
 
 ios/*
 android/*
-node_modules_old/*

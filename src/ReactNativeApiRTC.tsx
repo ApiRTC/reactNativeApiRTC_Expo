@@ -521,6 +521,31 @@ export default class ReactNativeApiRTC extends React.Component<{}, State> {
       }
       this.stopScreenSharingProcess();
     } else {
+
+/*
+      Using Media Constraints on getDisplayMedia (Android Only)
+      It is possible to use mediaConstraints on getDisplayMedia to restricts the user to capturing the default display using the custom boolean parameter createConfigForDefaultDisplay (need Android 14+).
+      A resolution scale can also be applied using resolutionScale parameter. Value is a number between 0 and 1.
+
+      This configuration in only available for android, so will you have to add the 'android' key in constraints.
+
+        const displayMediaStreamConstraints = {
+          android: {
+            createConfigForDefaultDisplay: true,
+            resolutionScale: 0.5,
+          },
+        };
+*/
+
+      const displayMediaStreamConstraints = {
+        video: true,
+        audio: false,
+        android: {
+          //createConfigForDefaultDisplay: true,
+          //resolutionScale: 0.5,
+        },
+      };
+
       if (Platform.OS === 'ios') {
         const reactTag = findNodeHandle(this.screenCaptureView.current);
         NativeModules.ScreenCapturePickerViewManager.show(reactTag);
@@ -534,7 +559,7 @@ export default class ReactNativeApiRTC extends React.Component<{}, State> {
           }
         });
 
-        apiRTC.Stream.createScreensharingStream({video: true, audio: false})
+        apiRTC.Stream.createDisplayMediaStream(displayMediaStreamConstraints)
           .then((localScreenShare: any) => {
             this.screenSharingIsStarted = true;
             this.localScreen = localScreenShare;
@@ -543,7 +568,7 @@ export default class ReactNativeApiRTC extends React.Component<{}, State> {
           })
           .catch((err: any) => console.error(err));
       } else {
-        apiRTC.Stream.createScreensharingStream({video: true, audio: false})
+        apiRTC.Stream.createDisplayMediaStream(displayMediaStreamConstraints)
           .then((localScreenShare: any) => {
             this.screenSharingIsStarted = true;
             this.localScreen = localScreenShare;
